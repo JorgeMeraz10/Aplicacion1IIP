@@ -5,10 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DownloadManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.text.Html;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -24,6 +28,7 @@ import com.example.aplicacion1iip.RestApiMethods.Methods;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,8 +37,10 @@ public class ActivityCreate extends AppCompatActivity {
 
     ImageView imageView;
     Button btngaleria;
+    Button btnenviar;
     static final int Result_galeria = 101;
     String POSTMethod;
+    String currentPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +56,16 @@ public class ActivityCreate extends AppCompatActivity {
 
             }
         });
+
+        btnenviar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ConsumeCreateApi();
+            }
+        });
         
-        ConsumeCreateApi();
+
     }
 
     private  void GaleriaImagenes()
@@ -76,6 +91,7 @@ public class ActivityCreate extends AppCompatActivity {
     {
         imageView = (ImageView) findViewById(R.id.imageView);
         btngaleria = (Button) findViewById(R.id.btngaleria);
+        btnenviar = (Button) findViewById(R.id.btnenviar);
     }
     
     private void ConsumeCreateApi()
@@ -84,7 +100,7 @@ public class ActivityCreate extends AppCompatActivity {
         parametros.put("nombres", "Ernesto");
         parametros.put("apellidos", "Valverde");
         parametros.put("fechanac", "2023-03-02");
-        parametros.put("foto", "SDSDSDFDFDFDFDFGFGFD");
+        parametros.put("foto", ImageToBase64(currentPath));
 
          POSTMethod = Methods.ApiCreate;
         JSONObject JsonAlumn = new JSONObject(parametros);
@@ -117,5 +133,29 @@ public class ActivityCreate extends AppCompatActivity {
         });
 
         peticion.add(jsonObjectRequest);
+    }
+
+    public static String ImageToBase64(String path)
+    {
+        Bitmap bmp = null;
+        ByteArrayOutputStream bos = null;
+        byte[] bt = null;
+        String Image64String = null;
+
+        try
+        {
+           bmp = BitmapFactory.decodeFile(path);
+           bos = new ByteArrayOutputStream();
+           bmp.compress(Bitmap.CompressFormat.JPEG,50 , bos);
+           bt = bos.toByteArray();
+           Image64String = android.util.Base64.encodeToString(bt, android.util.Base64.DEFAULT);
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+
+        }
+        return Image64String;
+
     }
 }
